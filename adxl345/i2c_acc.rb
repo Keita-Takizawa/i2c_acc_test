@@ -3,6 +3,7 @@ require "./I2C.rb"
 
 
 scale_multiplier    = 0.004
+earth_gravity       = 9.80665
 
 bus_address         = 0x53
 data_format         = 0x31
@@ -15,21 +16,22 @@ class ADXL345 < I2C
   def avetimes time , ave
     bus_address = 0x53
     scale_multiplier = 0.004
+    earth_gravity = 9.80665
     data1 = 0
     data2 = 0
     data3 = 0
     ave.times do
-      data1 = data1 + i2c_get_ADXL345(bus_address, 0x32)
-      data2 = data2 + i2c_get_ADXL345(bus_address, 0x34)
+      data1 = data1 + i2c_get_ADXL345(bus_address, 0x33)
+      data2 = data2 + i2c_get_ADXL345(bus_address, 0x35)
       data3 = data3 + i2c_get_ADXL345(bus_address, 0x37)
     end
     print (Time.new - time)
     print ", "
-    print ((data1/ave) * scale_multiplier)
+    print ((data1/ave) * scale_multiplier * earth_gravity)
     print ", "
-    print ((data2/ave) * scale_multiplier)
+    print ((data2/ave) * scale_multiplier * earth_gravity)
     print ", "
-    puts ((data3/ave) * scale_multiplier)
+    puts ((data3/ave) * scale_multiplier * earth_gravity)
   end
 
   def i2c_get_ADXL345(sle_adr , mem_adr)
@@ -39,11 +41,11 @@ class ADXL345 < I2C
   end
 end
 
-  cs = ADXL345.new(1)
+  sc = ADXL345.new(1)
 
-  cs.i2c_init(bus_address, power_ctl, measure)
+  sc.i2c_init(bus_address, power_ctl, measure)
 
   time = Time.now
   30.times do
-    cs.avetimes(time,2)
+    sc.avetimes(time,2)
   end
